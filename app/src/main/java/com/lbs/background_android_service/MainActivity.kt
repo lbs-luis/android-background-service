@@ -1,28 +1,138 @@
 package com.lbs.background_android_service
 
+import android.content.Intent
 import android.os.Bundle
+import android.renderscript.ScriptGroup.Input
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.lbs.background_android_service.service.BackgroundApi
 import com.lbs.background_android_service.ui.theme.BackgroundandroidserviceTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.*
+
 
 class MainActivity : ComponentActivity() {
+    val logTag = "MainActivity"
+
+    fun log (message:String) {
+        Log.d(logTag, "$logTag : $message");
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
+
         setContent {
             BackgroundandroidserviceTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                MainScreen(
+                    onStart = { port ->
+                        log("Iniciando Serviço na porta: $port")
+                        val intent = Intent(this, BackgroundApi::class.java)
+                        intent.putExtra("httpServerPort",port)
+                        startForegroundService(intent)
+                    },
+                    onStop = {
+                        log("Parando Serviço")
+                        val intent = Intent(this, BackgroundApi::class.java)
+                        stopService(intent)
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen(onStart: (Int) -> Unit, onStop: () -> Unit) {
+    var portText by remember { mutableStateOf("8080") }
+
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.app_name), color = Color.White) },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = Color(0xFF1E3A8A)
+                ),
+            )
+        }
+    ){ innerPadding ->
+        Box( modifier = Modifier
+            .background(Color(0xFFF2F0EF))
+            .fillMaxSize()
+            .padding(innerPadding),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                modifier = Modifier.width(240.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                TextField(
+                    value = portText,
+                    onValueChange = { portText = it },
+                    label = { Text("Porta") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        val port = portText.toIntOrNull()
+                        if (port != null) {
+                            onStart(port)
+                        }
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669))
+                ) {
+                    Text(
+                        "Iniciar Serviço",
+                        fontSize = 20.sp
+                    )
+                }
+                Button(
+                    onClick = onStop,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB91C1C))
+                ) {
+                    Text(
+                        "Parar Serviço",
+                        fontSize = 20.sp
                     )
                 }
             }
@@ -30,18 +140,18 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun MainScreenPreview() {
+    val logTag = "MainActivity"
+
+    fun log (message:String) {
+        Log.d(logTag, "$logTag : $message");
+    }
     BackgroundandroidserviceTheme {
-        Greeting("Android")
+        MainScreen(
+            onStart = { log("Serviço iniciado") },
+            onStop = { log("Serviço parado") }
+        )
     }
 }

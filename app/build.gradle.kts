@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.lbs.background_android_service"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -36,11 +36,21 @@ android {
     }
     buildFeatures {
         compose = true
+        /* Essas configurações de binding não vem por padrão */
+        /* Servem como no lugar do jetpack compose */
+        /* dataBinding = true */
+        /* viewBinding = true */
     }
 }
 
 dependencies {
+    /* Bibliotecas importadas */
 
+    // biblioteca pra criar servidor HTTP -> https://github.com/NanoHttpd/nanohttpd
+    implementation(libs.nanohttpd)
+
+
+    /* Bibliotecas Padrão */
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
