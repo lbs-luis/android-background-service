@@ -3,7 +3,8 @@
 build/
 
 # Local export .zip file
-./background-android-service.zip
+./poc-background-service/background-android-service.zip
+./poc-bgs-front/poc-bgs-front.zip
 
 # Local configuration file (sdk path, etc)
 local.properties

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <title>$appName - Status</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f2f5;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+            header {
+                background-color: #1E3A8A;
+                color: #fff;
+                padding: 30px 20px;
+                text-align: center;
+            }
+            header h1 {
+                margin: 0;
+                font-size: 2em;
+            }
+            header h2 {
+                margin: 5px 0 0 0;
+                font-weight: normal;
+                font-size: 1.2em;
+                color: #cfd6e3; /* subtítulo com bom contraste */
+            }
+            .container {
+                width: 90%;
+                max-width: 600px;
+                margin: 30px auto;
+                background-color: #fff;
+                padding: 20px 25px;
+                border-radius: 10px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                text-align: center;
+            }
+            .status {
+                font-size: 2em;
+                color: #22c55e; /* verde */
+                font-weight: bold;
+                margin-top: 15px;
+            }
+            .route-url {
+                font-family: "Courier New", monospace;
+                background-color: #e0e7ff;
+                color: #1E3A8A;
+                padding: 5px 10px;
+                border-radius: 5px;
+                display: inline-block;
+                margin-top: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>$appName</h1>
+            <h2 class="route-url">/status</h2>
+        </header>
+        <div class="container">
+            <p>Estado da API:</p>
+            <div class="status">✅</div>
+        </div>
+    </body>
+</html>
