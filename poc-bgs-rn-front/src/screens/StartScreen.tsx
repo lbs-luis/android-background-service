@@ -12,6 +12,14 @@ import {
   Platform,
 } from 'react-native';
 
+const TopBar = ({title}: {title: string}) => {
+  return (
+    <View style={styles.topBarContainer}>
+      <Text style={styles.topBarTitle}>{title}</Text>
+    </View>
+  );
+};
+
 const StatusIndicator = ({isConnected}: {isConnected: boolean}) => {
   const statusText = isConnected
     ? 'Conectado ao Serviço'
@@ -40,7 +48,6 @@ export function StartScreen() {
     if (Platform.OS === 'android') {
       const packageName = 'com.lbs.background_android_service';
       const activityName = 'com.lbs.background_android_service.MainActivity';
-
       AppLauncher.openApp(packageName, activityName);
     }
   };
@@ -56,11 +63,9 @@ export function StartScreen() {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-
       const response = await fetch(`${url}/status`, {
         signal: controller.signal,
       });
-
       clearTimeout(timeoutId);
 
       if (response.ok) {
@@ -76,46 +81,75 @@ export function StartScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.contentWrapper}>
-        <StatusIndicator isConnected={isConnected} />
+    <View style={styles.screenContainer}>
+      <TopBar title="POC BGS RN Front" />
 
-        <TextInput
-          style={styles.textInput}
-          value={url}
-          onChangeText={setUrl}
-          placeholder="URL do Serviço Backend"
-          autoCapitalize="none"
-          keyboardType="url"
-          editable={!isLoading} // Não permite editar enquanto carrega
-        />
+      <View style={styles.contentContainer}>
+        <View style={styles.contentWrapper}>
+          <StatusIndicator isConnected={isConnected} />
 
-        <TouchableOpacity
-          style={[
-            styles.button,
-            {backgroundColor: isLoading ? '#9CA3AF' : '#2563EB'}, // gray-400 or blue-600
-          ]}
-          onPress={handleConnect}
-          disabled={isLoading}
-          activeOpacity={0.7}>
-          {isLoading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>Conectar</Text>
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.openAppButton]}
-          onPress={handleOpenBackendApp}
-          activeOpacity={0.7}>
-          <Text style={styles.buttonText}>Abrir App Backend</Text>
-        </TouchableOpacity>
+          <TextInput
+            style={styles.textInput}
+            value={url}
+            onChangeText={setUrl}
+            placeholder="URL do Serviço Backend"
+            autoCapitalize="none"
+            keyboardType="url"
+            editable={!isLoading}
+          />
+
+          <TouchableOpacity
+            style={[
+              styles.button,
+              {backgroundColor: isLoading ? '#9CA3AF' : '#2563EB'},
+            ]}
+            onPress={handleConnect}
+            disabled={isLoading}
+            activeOpacity={0.7}>
+            {isLoading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.buttonText}>Conectar</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.openAppButton]}
+            onPress={handleOpenBackendApp}
+            activeOpacity={0.7}>
+            <Text style={styles.buttonText}>Abrir App Backend</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screenContainer: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+  },
+  topBarContainer: {
+    backgroundColor: '#166534',
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    shadowOffset: {height: 2, width: 0},
+  },
+  topBarTitle: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -131,13 +165,6 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     fontSize: 18,
     color: '#374151',
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    padding: 20,
   },
   contentWrapper: {
     width: '100%',
