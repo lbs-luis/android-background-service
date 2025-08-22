@@ -61,10 +61,13 @@ class BackgroundApi : Service() {
                     if (!::httpServerNano.isInitialized || !httpServerNano.isAlive) {
                         httpServerNano = NanoHTTPD(context = applicationContext, httpServerPort)
                         httpServerNano.start()
+
                         log("Servidor NanoHTTPD: Em execução. $httpServerUrl")
+                        ServiceStatusHolder.updateState(isRunning = true, url = httpServerUrl)
                         sendBroadcast(closeIntent)
                     } else {
                         log("Servidor NanoHTTPD já em execução. $httpServerUrl")
+                        ServiceStatusHolder.updateState(isRunning = true, url = httpServerUrl)
                     }
                 } catch (e: Exception) {
                     log("Erro ao iniciar NanoHTTPD: ${e.message}")
@@ -80,6 +83,7 @@ class BackgroundApi : Service() {
                     }
 
                     log("Servidor Custom: Em execução. $httpServerUrl")
+                    ServiceStatusHolder.updateState(isRunning = true, url = httpServerUrl)
                     sendBroadcast(closeIntent)
                 }
             }
@@ -98,6 +102,7 @@ class BackgroundApi : Service() {
             httpServer?.stop()
             log("Servidor Custom: Finalizado")
         }
+        ServiceStatusHolder.updateState(isRunning = false, url = null)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

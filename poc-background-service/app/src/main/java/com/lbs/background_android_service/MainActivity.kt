@@ -15,12 +15,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.*
+import com.lbs.background_android_service.service.ServiceStatusHolder
 
 
 class MainActivity : ComponentActivity() {
@@ -113,6 +117,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(onStart: (Int) -> Unit, onStop: () -> Unit) {
     var portText by remember { mutableStateOf("8080") }
+    val serviceState by ServiceStatusHolder.status.collectAsState()
 
     Scaffold (
         topBar = {
@@ -135,6 +140,11 @@ fun MainScreen(onStart: (Int) -> Unit, onStop: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+                StatusIndicator(
+                    isRunning = serviceState.isRunning,
+                    url = serviceState.url
+                )
+                Spacer(modifier = Modifier.height(16.dp)) 
                 TextField(
                     value = portText,
                     onValueChange = { portText = it },
@@ -172,6 +182,25 @@ fun MainScreen(onStart: (Int) -> Unit, onStop: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun StatusIndicator(isRunning: Boolean, url: String?) {
+    val indicatorColor = if (isRunning) Color(0xFF16A34A) else Color(0xFFDC2626)
+    val statusText = if (isRunning) url ?: "Serviço Online" else "Serviço Offline"
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .size(16.dp)
+                .background(color = indicatorColor, shape = CircleShape)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = statusText, fontSize = 16.sp)
     }
 }
 
