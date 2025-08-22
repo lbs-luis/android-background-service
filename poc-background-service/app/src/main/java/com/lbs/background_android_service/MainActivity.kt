@@ -144,7 +144,7 @@ fun MainScreen(onStart: (Int) -> Unit, onStop: () -> Unit) {
                     isRunning = serviceState.isRunning,
                     url = serviceState.url
                 )
-                Spacer(modifier = Modifier.height(16.dp)) 
+                Spacer(modifier = Modifier.height(16.dp))
                 TextField(
                     value = portText,
                     onValueChange = { portText = it },

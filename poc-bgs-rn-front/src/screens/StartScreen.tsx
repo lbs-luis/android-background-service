@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,18 +8,21 @@ import {
   ActivityIndicator,
   Keyboard,
   StyleSheet,
+  NativeModules,
+  Platform,
 } from 'react-native';
 
-// Componente para o indicador de status (bolinha e texto)
-const StatusIndicator = ({ isConnected }: { isConnected: boolean }) => {
-  const statusText = isConnected ? 'Conectado ao Serviço' : 'Não conectado ao Serviço';
+const StatusIndicator = ({isConnected}: {isConnected: boolean}) => {
+  const statusText = isConnected
+    ? 'Conectado ao Serviço'
+    : 'Não conectado ao Serviço';
 
   return (
     <View style={styles.statusContainer}>
       <View
         style={[
           styles.statusIndicatorDot,
-          { backgroundColor: isConnected ? '#22C55E' : '#EF4444' }, // green-500 or red-500
+          {backgroundColor: isConnected ? '#22C55E' : '#EF4444'},
         ]}
       />
       <Text style={styles.statusText}>{statusText}</Text>
@@ -28,27 +31,39 @@ const StatusIndicator = ({ isConnected }: { isConnected: boolean }) => {
 };
 
 export function StartScreen() {
+  const {AppLauncher} = NativeModules;
   const [isConnected, setIsConnected] = useState(false);
-  // Usando o IP padrão para o host a partir do emulador
   const [url, setUrl] = useState('http://10.0.2.16:8080');
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleOpenBackendApp = () => {
+    if (Platform.OS === 'android') {
+      const packageName = 'com.lbs.background_android_service';
+      const activityName = 'com.lbs.background_android_service.MainActivity';
+
+      AppLauncher.openApp(packageName, activityName);
+    }
+  };
+
   const handleConnect = async () => {
-    if (isLoading) {return;}
-    Keyboard.dismiss(); // Esconde o teclado
+    if (isLoading) {
+      return;
+    }
+    Keyboard.dismiss();
     setIsLoading(true);
-    setIsConnected(false); // Reseta o status a cada nova tentativa
+    setIsConnected(false);
 
     try {
-      // O AbortController cancela a requisição se ela demorar muito (ex: 5 segundos)
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const response = await fetch(`${url}/status`, { signal: controller.signal });
+      const response = await fetch(`${url}/status`, {
+        signal: controller.signal,
+      });
 
-      clearTimeout(timeoutId); // Limpa o timeout se a resposta chegar a tempo
+      clearTimeout(timeoutId);
 
-      if (response.ok) { // Status 200-299
+      if (response.ok) {
         setIsConnected(true);
       } else {
         console.log(`Servidor respondeu com status: ${response.status}`);
@@ -78,17 +93,22 @@ export function StartScreen() {
         <TouchableOpacity
           style={[
             styles.button,
-            { backgroundColor: isLoading ? '#9CA3AF' : '#2563EB' }, // gray-400 or blue-600
+            {backgroundColor: isLoading ? '#9CA3AF' : '#2563EB'}, // gray-400 or blue-600
           ]}
           onPress={handleConnect}
           disabled={isLoading}
-          activeOpacity={0.7}
-        >
+          activeOpacity={0.7}>
           {isLoading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text style={styles.buttonText}>Conectar</Text>
           )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.openAppButton]}
+          onPress={handleOpenBackendApp}
+          activeOpacity={0.7}>
+          <Text style={styles.buttonText}>Abrir App Backend</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -96,7 +116,6 @@ export function StartScreen() {
 }
 
 const styles = StyleSheet.create({
-  // Estilos para StatusIndicator
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -111,14 +130,13 @@ const styles = StyleSheet.create({
   statusText: {
     marginLeft: 12,
     fontSize: 18,
-    color: '#374151', // gray-700
+    color: '#374151',
   },
-  // Estilos para StartScreen
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6', // gray-100
+    backgroundColor: '#F3F4F6',
     padding: 20,
   },
   contentWrapper: {
@@ -129,7 +147,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 48,
     borderWidth: 1,
-    borderColor: '#D1D5DB', // gray-300
+    borderColor: '#D1D5DB',
     borderRadius: 8,
     paddingHorizontal: 16,
     marginBottom: 16,
@@ -147,5 +165,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  openAppButton: {
+    backgroundColor: '#16A34A',
+    marginTop: 12,
   },
 });
